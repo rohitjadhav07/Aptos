@@ -60,7 +60,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/models", upload.single('modelFile'), async (req, res) => {
     try {
-      const modelData = insertAiModelSchema.parse(req.body);
+      // Convert string numbers to integers for validation
+      const processedBody = {
+        ...req.body,
+        creatorId: parseInt(req.body.creatorId),
+        pricePerInference: req.body.pricePerInference
+      };
+      
+      const modelData = insertAiModelSchema.parse(processedBody);
       
       // Handle file upload
       if (req.file) {

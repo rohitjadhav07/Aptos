@@ -18,50 +18,50 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+    <nav className="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center aptos-glow">
                 <i className="fas fa-brain text-white text-sm"></i>
               </div>
-              <h1 className="text-xl font-bold text-neutral-900">AptosAI Grid</h1>
+              <h1 className="text-xl font-bold text-foreground">AptosAI Grid</h1>
             </div>
             <div className="hidden md:flex space-x-6">
               <button 
                 onClick={() => scrollToSection('models')}
-                className="text-neutral-600 hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors font-medium"
               >
                 Discover Models
               </button>
               <button 
                 onClick={() => scrollToSection('prompts')}
-                className="text-neutral-600 hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors font-medium"
               >
                 Prompt Marketplace
               </button>
               <button 
                 onClick={() => scrollToSection('leaderboard')}
-                className="text-neutral-600 hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors font-medium"
               >
                 Leaderboard
               </button>
-              <button className="text-neutral-600 hover:text-primary transition-colors">
+              <button className="text-muted-foreground hover:text-primary transition-colors font-medium">
                 Docs
               </button>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             {isConnected && (
-              <div className="hidden md:flex items-center space-x-2 bg-neutral-100 px-3 py-2 rounded-lg">
-                <i className="fas fa-coins text-accent"></i>
-                <span className="text-sm font-medium">{aptBalance} APT</span>
+              <div className="hidden md:flex items-center space-x-2 bg-secondary/20 px-3 py-2 rounded-lg border border-secondary/30">
+                <i className="fas fa-coins text-secondary"></i>
+                <span className="text-sm font-medium text-foreground">{aptBalance} APT</span>
               </div>
             )}
             <Button 
               onClick={handleConnectWallet}
-              className="bg-primary text-white hover:bg-primary/90"
+              className="gradient-primary text-white hover:opacity-90 font-medium"
               disabled={isConnected}
             >
               <i className="fas fa-wallet mr-2"></i>
