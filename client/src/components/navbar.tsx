@@ -1,13 +1,26 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAptos } from "@/hooks/useAptos";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Navbar() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [aptBalance] = useState("1,247.5");
+  const { wallet, connectWallet, isLoading } = useAptos();
+  const { connected: isConnected, balance: aptBalance } = wallet;
+  const { toast } = useToast();
 
-  const handleConnectWallet = () => {
-    // Simulate wallet connection
-    setIsConnected(true);
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+      toast({
+        title: "Wallet Connected",
+        description: "Successfully connected to Aptos wallet",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to connect wallet",
+        variant: "destructive",
+      });
+    }
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -56,16 +69,16 @@ export default function Navbar() {
             {isConnected && (
               <div className="hidden md:flex items-center space-x-2 bg-secondary/20 px-3 py-2 rounded-lg border border-secondary/30">
                 <i className="fas fa-coins text-secondary"></i>
-                <span className="text-sm font-medium text-foreground">{aptBalance} APT</span>
+                <span className="text-sm font-medium text-foreground">{aptBalance?.toFixed(2)} APT</span>
               </div>
             )}
             <Button 
               onClick={handleConnectWallet}
               className="gradient-primary text-white hover:opacity-90 font-medium"
-              disabled={isConnected}
+              disabled={isConnected || isLoading}
             >
               <i className="fas fa-wallet mr-2"></i>
-              {isConnected ? 'Connected' : 'Connect Wallet'}
+              {isLoading ? 'Connecting...' : isConnected ? 'Connected' : 'Connect Wallet'}
             </Button>
           </div>
         </div>

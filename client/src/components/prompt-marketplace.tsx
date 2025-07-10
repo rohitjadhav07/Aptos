@@ -51,23 +51,23 @@ export default function PromptMarketplace() {
   };
 
   return (
-    <section id="prompts" className="py-20 bg-white">
+    <section id="prompts" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-neutral-900 mb-4">AI Prompt Marketplace</h2>
-          <p className="text-neutral-600 text-lg">Discover, buy, and sell premium AI prompts as NFTs with full licensing</p>
+          <h2 className="text-4xl font-bold text-foreground mb-4">AI Prompt Marketplace</h2>
+          <p className="text-muted-foreground text-lg">Discover, buy, and sell premium AI prompts as NFTs with full licensing</p>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="animate-pulse glass border-border">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-neutral-200 rounded mb-4"></div>
-                  <div className="h-3 bg-neutral-200 rounded mb-2"></div>
-                  <div className="h-3 bg-neutral-200 rounded mb-4"></div>
-                  <div className="h-16 bg-neutral-200 rounded mb-4"></div>
-                  <div className="h-8 bg-neutral-200 rounded"></div>
+                  <div className="h-4 bg-muted rounded mb-4"></div>
+                  <div className="h-3 bg-muted rounded mb-2"></div>
+                  <div className="h-3 bg-muted rounded mb-4"></div>
+                  <div className="h-16 bg-muted rounded mb-4"></div>
+                  <div className="h-8 bg-muted rounded"></div>
                 </CardContent>
               </Card>
             ))}
@@ -75,26 +75,26 @@ export default function PromptMarketplace() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {prompts?.map((prompt) => (
-              <Card key={prompt.id} className="hover:shadow-lg transition-shadow">
+              <Card key={prompt.id} className="glass border-border hover-lift">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-neutral-900 mb-1">{prompt.title}</h3>
-                      <p className="text-sm text-neutral-500">by @{prompt.creatorId === 1 ? 'ai_researcher' : prompt.creatorId === 2 ? 'blockchain_dev' : 'sound_artist'}</p>
+                      <h3 className="font-semibold text-foreground mb-1">{prompt.title}</h3>
+                      <p className="text-sm text-muted-foreground">by @{prompt.creatorId === 1 ? 'ai_researcher' : prompt.creatorId === 2 ? 'blockchain_dev' : 'sound_artist'}</p>
                     </div>
                     <div className="flex items-center space-x-1">
                       <i className="fas fa-certificate text-secondary"></i>
                       <Badge variant="secondary" className="text-xs">NFT</Badge>
                     </div>
                   </div>
-                  <p className="text-neutral-600 text-sm mb-4">{prompt.description}</p>
-                  <div className="bg-neutral-50 p-3 rounded-lg mb-4">
-                    <p className="text-xs text-neutral-500 mb-1">Preview:</p>
-                    <p className="text-sm font-mono text-neutral-700 truncate">
+                  <p className="text-muted-foreground text-sm mb-4">{prompt.description}</p>
+                  <div className="bg-muted/30 p-3 rounded-lg mb-4 border border-border">
+                    <p className="text-xs text-muted-foreground mb-1">Preview:</p>
+                    <p className="text-sm font-mono text-foreground truncate">
                       {prompt.content.substring(0, 80)}...
                     </p>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-neutral-500 mb-4">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                     <span>
                       <i className="fas fa-download mr-1"></i>
                       {prompt.salesCount} sales
@@ -105,11 +105,11 @@ export default function PromptMarketplace() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-accent">{prompt.price} APT</span>
+                    <span className="text-lg font-bold text-secondary">{prompt.price} APT</span>
                     <Button 
                       onClick={() => handleBuyPrompt(prompt.id)}
                       disabled={purchaseMutation.isPending}
-                      className="bg-secondary text-white hover:bg-secondary/90"
+                      className="gradient-secondary text-white hover:opacity-90"
                     >
                       {purchaseMutation.isPending ? (
                         <>
@@ -131,7 +131,7 @@ export default function PromptMarketplace() {
         )}
 
         <div className="text-center mt-12">
-          <Button className="bg-secondary text-white px-8 py-4 rounded-xl font-semibold hover:bg-secondary/90 transition-colors shadow-lg">
+          <Button className="gradient-secondary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg hover-lift">
             <i className="fas fa-plus mr-2"></i>Create & Sell Your Prompt
           </Button>
         </div>
