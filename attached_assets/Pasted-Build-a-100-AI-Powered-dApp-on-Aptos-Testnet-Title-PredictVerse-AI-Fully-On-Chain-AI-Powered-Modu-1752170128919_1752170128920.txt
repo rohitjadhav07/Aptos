@@ -1,0 +1,148 @@
+Build a 100% AI-Powered dApp on Aptos Testnet
+Title:
+PredictVerse AI: Fully On-Chain AI-Powered Modular Prediction Market on Aptos
+
+🧠 What It Does:
+Users create or join prediction markets about real-world events (sports, politics, crypto, etc.)
+
+AI suggests trending topics, creates market questions automatically, and resolves outcomes using real-world data
+
+Uses Chainlink Functions or external APIs (e.g., OpenAI, HuggingFace) via oracle for market resolution
+
+NFT-based market shares, liquid until resolution
+
+Fully on Aptos Testnet using Move smart contracts, React frontend, and AI backend
+
+🧱 Architecture Overview
+Frontend (React + Aptos SDK)
+WalletConnect (Petra / Martian)
+
+Create market UI (manual or AI-generated)
+
+Predict outcome UI
+
+View live markets & NFTs
+
+Leaderboard & profile page
+
+Backend / API Layer
+Express.js or Flask server for:
+
+Calling AI APIs (OpenAI, Replicate)
+
+Triggering oracle for market resolution
+
+Optionally integrate with Chainlink Functions or use custom oracle simulation
+
+Smart Contracts (Move)
+MarketFactory: create new markets
+
+Market: stores event, options, shares
+
+NFT module: mint prediction tokens
+
+Resolver module: validate & resolve markets using AI/off-chain oracle
+
+🛠️ Full Technical Prompt
+Build a decentralized AI-powered prediction market application on the Aptos Testnet using Move smart contracts and a React frontend.
+
+Requirements:
+1. Smart Contracts (Move):
+Write a MarketFactory smart contract to allow creation of new prediction markets
+
+Each Market should:
+
+Store event details (question, options, end time)
+
+Allow wallet-based voting/prediction
+
+Mint an NFT for each vote (option selected)
+
+Add a resolver function that:
+
+Can be triggered by a whitelisted oracle or contract admin
+
+Validates the outcome using off-chain API (AI model or Chainlink)
+
+2. AI + Oracle Layer (Backend in Node.js / Python):
+Create a REST API to:
+
+Generate market questions using OpenAI (/generate-market)
+
+Resolve outcomes using AI or Chainlink Functions (/resolve-market)
+
+Use Chainlink Functions OR simulate a decentralized oracle
+
+Collect event results from e.g., news APIs, sports APIs
+
+Use GPT or logic to determine winner
+
+Sign and send resolution transaction to Aptos Testnet using Aptos SDK
+
+3. Frontend (React + Tailwind + Aptos Wallet Adapter):
+Connect wallet (Petra, Martian)
+
+Show market list: AI-created or user-generated
+
+Allow users to join markets and predict outcomes
+
+Show NFT shares minted
+
+After resolution: show result and calculate rewards
+
+Include dashboard:
+
+User predictions history
+
+Total wins
+
+Reputation score
+
+🔗 Tools & Resources
+✅ Aptos Development
+Aptos Docs: https://aptos.dev/
+
+Faucet: https://faucet.aptoslabs.com/
+
+Aptos CLI: npm install -g aptos
+
+Aptos SDK (JS): https://github.com/aptos-labs/aptos-core/tree/main/ecosystem/typescript/sdk
+
+✅ AI Tools
+OpenAI API: https://platform.openai.com/
+
+Replicate: https://replicate.com/
+
+HuggingFace: https://huggingface.co/models
+
+Chainlink Functions (for AI + API oracle): https://docs.chain.link/chainlink-functions
+
+✅ Move Language
+Move Book: https://move-language.github.io/move/
+
+Move playground: https://playground.aptos.dev/
+
+Aptos Examples: https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
+
+✅ Frontend
+Wallet Adapter: https://www.npmjs.com/package/@aptos-labs/wallet-adapter
+
+Connect Wallets (Petra, Martian, Fewcha)
+
+Tailwind + Framer Motion for animations
+
+🧪 Deployment & Test Plan
+Write Move modules and deploy to Aptos Testnet using aptos publish
+
+Deploy React frontend to Vercel or Netlify
+
+Create a /markets page to list prediction markets
+
+Add /create-market and /resolve-market using AI backend
+
+Simulate 3–5 market events with multiple users
+
+Use test APT tokens via faucet
+
+Submit working testnet link with wallet integration
+
