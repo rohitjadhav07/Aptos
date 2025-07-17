@@ -6,13 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/contexts/WalletProvider";
+import { AptosAIGridContract } from "@/lib/aptosContract";
 import { apiRequest } from "@/lib/queryClient";
+import { createModelInferencePayment, getModelPrice, formatAPT, verifyPaymentTransaction } from "@/lib/aptosPayment";
 import type { AiModel } from "@shared/schema";
 
 export default function ModelDiscovery() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const { toast } = useToast();
+  const { wallet, signAndSubmitTransaction, aptos, refreshBalance } = useWallet();
 
   const { data: models, isLoading } = useQuery<AiModel[]>({
     queryKey: ["/api/models", selectedCategory !== "All Categories" ? selectedCategory : undefined, searchTerm || undefined],
@@ -29,22 +33,67 @@ export default function ModelDiscovery() {
   });
 
   const inferenceMutation = useMutation({
-    mutationFn: async ({ modelId, input }: { modelId: number; input: any }) => {
-      const response = await apiRequest("POST", `/api/models/${modelId}/infer`, {
+    mutationFn: async ({ model, input }: { model: AiModel; input: any }) => {
+      // Check if wallet is connected
+      if (!wallet.connected) {
+        throw new Error("Please connect your Petra wallet to try this model");
+      }
+
+      // Get the price for this model
+      const modelPrice = getModelPrice(model.name);
+      
+      // Check if user has sufficient balance
+      if (wallet.balance < modelPrice) {
+        throw new Error(`Insufficient balance. You need ${formatAPT(modelPrice)} APT but only have ${formatAPT(wallet.balance)} APT`);
+      }
+
+      // Create payment transaction
+      const paymentTransaction = await createModelInferencePayment(
+        aptos,
+        wallet.address!,
+        model.id.toString(),
+        model.name
+      );
+
+      // Sign and submit the payment transaction
+      const txResult = await signAndSubmitTransaction(paymentTransaction);
+      
+      if (!txResult.hash) {
+        throw new Error("Payment transaction failed");
+      }
+
+      // Verify the payment transaction
+      const isPaymentValid = await verifyPaymentTransaction(aptos, txResult.hash);
+      if (!isPaymentValid) {
+        throw new Error("Payment verification failed");
+      }
+
+      // Refresh balance after payment
+      await refreshBalance();
+
+      // Now execute the model inference
+      const response = await apiRequest("POST", `/api/models/${model.id}/infer`, {
         input,
         userId: 1, // Mock user ID
+        paymentTxHash: txResult.hash,
+        paidAmount: modelPrice
       });
-      return response.json();
+
+      return {
+        ...response.json(),
+        txHash: txResult.hash,
+        paidAmount: modelPrice
+      };
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       toast({
-        title: "Inference Complete",
-        description: `Model executed successfully. Cost: ${data.cost} APT`,
+        title: "Model Inference Complete! 🎉",
+        description: `Successfully paid ${formatAPT(data.paidAmount)} APT and executed ${variables.model.name}. Tx: ${data.txHash.slice(0, 10)}...`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Inference Failed",
+        title: "Model Inference Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -52,6 +101,16 @@ export default function ModelDiscovery() {
   });
 
   const handleTryModel = (model: AiModel) => {
+    // Check wallet connection first
+    if (!wallet.connected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your Petra wallet to try this model",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Mock input based on model category
     let input;
     switch (model.category) {
@@ -68,7 +127,14 @@ export default function ModelDiscovery() {
         input = { data: "test input" };
     }
 
-    inferenceMutation.mutate({ modelId: model.id, input });
+    // Show confirmation toast with price
+    const modelPrice = getModelPrice(model.name);
+    toast({
+      title: "Processing Payment...",
+      description: `This will cost ${formatAPT(modelPrice)} APT from your wallet`,
+    });
+
+    inferenceMutation.mutate({ model, input });
   };
 
   const categories = ["All Categories", "Computer Vision", "Language", "Audio", "Multimodal"];
@@ -92,12 +158,12 @@ export default function ModelDiscovery() {
   };
 
   return (
-    <section id="models" className="py-20 bg-background">
+    <section id="models" className="compact-section bg-background constellation-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
           <div>
-            <h2 className="text-4xl font-bold text-foreground mb-4">Discover AI Models</h2>
-            <p className="text-muted-foreground text-lg">Browse, test, and use cutting-edge AI models from the community</p>
+            <h2 className="text-3xl font-bold holographic mb-2">🔭 Discover AI Models</h2>
+            <p className="text-muted-foreground">Browse, test, and use cutting-edge AI models from the cosmos</p>
           </div>
           <div className="mt-6 lg:mt-0 flex flex-col sm:flex-row gap-4">
             <div className="relative">
@@ -168,7 +234,7 @@ export default function ModelDiscovery() {
                       {model.rating} rating
                     </span>
                     <span className="text-secondary font-medium">
-                      {model.pricePerInference} APT/query
+                      {formatAPT(getModelPrice(model.name))} APT/query
                     </span>
                   </div>
                   <Button 
@@ -199,7 +265,143 @@ export default function ModelDiscovery() {
             <p className="text-muted-foreground">No models found matching your criteria.</p>
           </div>
         )}
+
+        {/* Blockchain Test Section */}
+        <BlockchainTestSection />
       </div>
     </section>
+  );
+}
+
+function BlockchainTestSection() {
+  const { wallet, signAndSubmitTransaction } = useWallet();
+  const { toast } = useToast();
+  const [testModelId, setTestModelId] = useState("1");
+
+  const testInferenceMutation = useMutation({
+    mutationFn: async (modelId: number) => {
+      if (!wallet.connected) {
+        throw new Error("Please connect your wallet first");
+      }
+
+      const transaction = await AptosAIGridContract.executeInference(modelId);
+      const result = await signAndSubmitTransaction(transaction);
+      return result;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Blockchain Transaction Successful!",
+        description: `Inference executed on testnet. Transaction: ${data.hash?.slice(0, 10)}...`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Transaction Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { data: blockchainStats, refetch: refetchStats } = useQuery({
+    queryKey: ["blockchain-test-stats"],
+    queryFn: async () => {
+      const [totalModels, totalInferences] = await Promise.all([
+        AptosAIGridContract.getTotalModels(),
+        AptosAIGridContract.getTotalInferences(),
+      ]);
+      return { totalModels, totalInferences };
+    },
+    refetchInterval: 5000,
+  });
+
+  return (
+    <div className="mt-16 pt-16 border-t border-border">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-foreground mb-2">🧪 Blockchain Test Zone</h3>
+        <p className="text-muted-foreground">Test smart contract interactions on Aptos testnet</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <Card className="glass border-primary/20">
+          <CardContent className="p-6 text-center">
+            <div className="text-2xl font-bold text-primary mb-2">
+              {blockchainStats?.totalModels || 0}
+            </div>
+            <div className="text-muted-foreground">Models on Chain</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="glass border-secondary/20">
+          <CardContent className="p-6 text-center">
+            <div className="text-2xl font-bold text-secondary mb-2">
+              {blockchainStats?.totalInferences || 0}
+            </div>
+            <div className="text-muted-foreground">Total Inferences</div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass border-accent/20">
+          <CardContent className="p-6 text-center">
+            <div className="text-2xl font-bold text-accent mb-2">
+              {wallet.connected ? wallet.balance.toFixed(4) : '0.0000'}
+            </div>
+            <div className="text-muted-foreground">Your APT Balance</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {wallet.connected ? (
+        <Card className="glass border-border">
+          <CardContent className="p-6">
+            <h4 className="font-semibold text-foreground mb-4">Test Smart Contract Interaction</h4>
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Model ID to Test
+                </label>
+                <Input
+                  type="number"
+                  value={testModelId}
+                  onChange={(e) => setTestModelId(e.target.value)}
+                  placeholder="Enter model ID"
+                  className="bg-background/50 border-border"
+                />
+              </div>
+              <Button
+                onClick={() => testInferenceMutation.mutate(parseInt(testModelId))}
+                disabled={testInferenceMutation.isPending || !testModelId}
+                className="gradient-primary text-white"
+              >
+                {testInferenceMutation.isPending ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>
+                    Executing...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-rocket mr-2"></i>
+                    Test Inference
+                  </>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              This will execute a real transaction on Aptos testnet and may cost a small amount of APT.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="glass border-border">
+          <CardContent className="p-6 text-center">
+            <i className="fas fa-wallet text-4xl text-muted-foreground mb-4"></i>
+            <h4 className="font-semibold text-foreground mb-2">Connect Your Wallet</h4>
+            <p className="text-muted-foreground">
+              Connect your Petra wallet to test blockchain interactions
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useWallet } from "@/contexts/WalletProvider";
+import { AptosAIGridContract } from "@/lib/aptosContract";
 
 export default function ModelUpload() {
   const [formData, setFormData] = useState({
@@ -19,20 +20,37 @@ export default function ModelUpload() {
   });
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const { wallet, signAndSubmitTransaction } = useWallet();
 
   const uploadMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await fetch("/api/models", {
-        method: "POST",
-        body: data,
-      });
-      if (!response.ok) throw new Error("Failed to upload model");
-      return response.json();
+    mutationFn: async (formData: any) => {
+      if (!wallet.connected) {
+        throw new Error("Please connect your wallet first");
+      }
+
+      // Convert APT to octas for the smart contract
+      const priceInOctas = AptosAIGridContract.aptToOctas(parseFloat(formData.pricePerInference));
+      
+      // Create the transaction for the smart contract
+      const transaction = await AptosAIGridContract.uploadModel(
+        formData.name,
+        formData.description,
+        priceInOctas
+      );
+
+      // Sign and submit the transaction
+      const result = await signAndSubmitTransaction(transaction);
+      
+      return {
+        name: formData.name,
+        transactionHash: result.hash,
+        ...result
+      };
     },
     onSuccess: (data) => {
       toast({
-        title: "Model Uploaded Successfully",
-        description: `Your model "${data.name}" has been uploaded and is now available for inference.`,
+        title: "Model Uploaded to Blockchain!",
+        description: `Your model "${data.name}" has been uploaded to Aptos testnet. Transaction: ${data.transactionHash?.slice(0, 10)}...`,
       });
       setFormData({
         name: "",
@@ -55,19 +73,25 @@ export default function ModelUpload() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("category", formData.category);
-    data.append("description", formData.description);
-    data.append("pricePerInference", formData.pricePerInference);
-    data.append("storageType", formData.storageType);
-    data.append("creatorId", "1"); // Mock creator ID
-    
-    if (file) {
-      data.append("modelFile", file);
+    if (!wallet.connected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your Aptos wallet to upload models",
+        variant: "destructive",
+      });
+      return;
     }
 
-    uploadMutation.mutate(data);
+    if (!formData.name || !formData.description || !formData.pricePerInference) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    uploadMutation.mutate(formData);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,11 +108,11 @@ export default function ModelUpload() {
   ];
 
   return (
-    <section id="upload" className="py-20 bg-card/50">
+    <section id="upload" className="compact-section constellation-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Upload Your AI Model</h2>
-          <p className="text-muted-foreground text-lg">Share your AI innovations with the world and start earning APT tokens</p>
+          <h2 className="text-5xl font-bold holographic mb-6">🚀 Upload Your AI Model</h2>
+          <p className="text-muted-foreground text-xl">Share your AI innovations with the cosmos and start earning APT tokens</p>
         </div>
 
         <div className="max-w-4xl mx-auto">
@@ -107,19 +131,19 @@ export default function ModelUpload() {
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           placeholder="Enter model name"
-                          className="bg-background/50 border-border text-foreground placeholder-muted-foreground"
+                          className="glass border-primary/30 text-white placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
                           required
                         />
                       </div>
                       <div>
                         <Label htmlFor="category" className="text-foreground">Category</Label>
                         <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                          <SelectTrigger className="bg-background/50 border-border text-foreground">
+                          <SelectTrigger className="glass border-primary/30 text-white focus:border-primary focus:ring-2 focus:ring-primary/20">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="glass border-primary/30 bg-background/90">
                             {categories.map((category) => (
-                              <SelectItem key={category} value={category}>
+                              <SelectItem key={category} value={category} className="text-white hover:bg-primary/20">
                                 {category}
                               </SelectItem>
                             ))}
@@ -133,7 +157,7 @@ export default function ModelUpload() {
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                           placeholder="Describe your model's capabilities..."
-                          className="bg-background/50 border-border text-foreground placeholder-muted-foreground"
+                          className="glass border-primary/30 text-white placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
                           rows={4}
                           required
                         />
@@ -147,7 +171,7 @@ export default function ModelUpload() {
                           value={formData.pricePerInference}
                           onChange={(e) => setFormData({ ...formData, pricePerInference: e.target.value })}
                           placeholder="0.00"
-                          className="bg-background/50 border-border text-foreground placeholder-muted-foreground"
+                          className="glass border-primary/30 text-white placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
                           required
                         />
                       </div>
@@ -157,10 +181,10 @@ export default function ModelUpload() {
                   <div>
                     <h3 className="text-xl font-semibold text-foreground mb-6">Model Files</h3>
                     <div className="space-y-4">
-                      <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/40 transition-colors cursor-pointer">
-                        <i className="fas fa-cloud-upload-alt text-4xl text-muted-foreground mb-4"></i>
-                        <p className="text-foreground mb-2">Drag & drop your model files here</p>
-                        <p className="text-sm text-muted-foreground">or click to browse</p>
+                      <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center hover:border-primary/60 transition-all duration-300 cursor-pointer glass cosmic-glow">
+                        <i className="fas fa-rocket text-5xl text-gradient mb-4 animate-pulse"></i>
+                        <p className="text-foreground mb-2 font-semibold">🌌 Launch your model to the cosmos</p>
+                        <p className="text-sm text-muted-foreground">or click to browse your stellar files</p>
                         <p className="text-xs text-muted-foreground mt-2">Supports: .pkl, .pt, .h5, .onnx, .zip</p>
                         <Input
                           type="file"
@@ -216,26 +240,26 @@ export default function ModelUpload() {
                     <Button 
                       type="submit"
                       disabled={uploadMutation.isPending}
-                      className="gradient-primary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg hover-lift"
+                      className="btn-stellar gradient-primary text-white px-8 py-4 rounded-xl font-semibold cosmic-glow"
                     >
                       {uploadMutation.isPending ? (
                         <>
-                          <i className="fas fa-spinner fa-spin mr-2"></i>
-                          Uploading...
+                          <div className="cosmic-spinner mr-2"></div>
+                          🚀 Launching to Blockchain...
                         </>
                       ) : (
                         <>
-                          <i className="fas fa-upload mr-2"></i>
-                          Upload Model
+                          <i className="fas fa-rocket mr-2"></i>
+                          🌟 Launch Model to Cosmos
                         </>
                       )}
                     </Button>
                     <Button 
                       type="button"
                       variant="outline"
-                      className="glass border-border text-foreground px-8 py-4 rounded-xl font-semibold hover:bg-muted/50 transition-all"
+                      className="btn-stellar glass border-primary/30 text-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary/10 transition-all"
                     >
-                      <i className="fas fa-eye mr-2"></i>Preview
+                      <i className="fas fa-eye mr-2"></i>👁️ Preview Model
                     </Button>
                   </div>
                 </div>

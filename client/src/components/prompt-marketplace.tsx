@@ -4,41 +4,112 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { purchasePrompt } from "@/lib/aptosOnchain";
+import { useWallet } from "@/contexts/WalletProvider";
+import { createModelInferencePayment, formatAPT, verifyPaymentTransaction } from "@/lib/aptosPayment";
 import type { Prompt } from "@shared/schema";
 
 export default function PromptMarketplace() {
   const { toast } = useToast();
+  const { wallet, signAndSubmitTransaction, aptos, refreshBalance } = useWallet();
 
   const { data: prompts, isLoading } = useQuery<Prompt[]>({
     queryKey: ["/api/prompts"],
   });
 
   const purchaseMutation = useMutation({
-    mutationFn: async (promptId: number) => {
-      const response = await apiRequest("POST", `/api/prompts/${promptId}/purchase`, {
+    mutationFn: async (prompt: Prompt) => {
+      // Check if wallet is connected
+      if (!wallet.connected) {
+        throw new Error("Please connect your Petra wallet to purchase this NFT");
+      }
+
+      // Get the price for this NFT
+      let price = prompt.price;
+      if (typeof price === 'string') price = parseFloat(price);
+      
+      // Check if user has sufficient balance
+      if (wallet.balance < price) {
+        throw new Error(`Insufficient balance. You need ${formatAPT(price)} APT but only have ${formatAPT(wallet.balance)} APT`);
+      }
+
+      // Create payment transaction for NFT purchase
+      const paymentTransaction = {
+        type: "entry_function_payload",
+        function: "0x1::coin::transfer",
+        type_arguments: ["0x1::aptos_coin::AptosCoin"],
+        arguments: [
+          "0x06ed61974ad9b10aa57c7ed03c7f6936797caf4b62fd5cc61985b4f592f80693", // Platform address
+          Math.floor(price * 100000000).toString() // Convert APT to octas
+        ]
+      };
+
+      // Sign and submit the payment transaction
+      const txResult = await signAndSubmitTransaction(paymentTransaction);
+      
+      if (!txResult.hash) {
+        throw new Error("Payment transaction failed");
+      }
+
+      // Verify the payment transaction
+      const isPaymentValid = await verifyPaymentTransaction(aptos, txResult.hash);
+      if (!isPaymentValid) {
+        throw new Error("Payment verification failed");
+      }
+
+      // Refresh balance after payment
+      await refreshBalance();
+
+      // Now record the NFT purchase in backend
+      const response = await apiRequest("POST", `/api/prompts/${prompt.id}/purchase`, {
         buyerId: 1, // Mock user ID
-        transactionHash: `0x${Math.random().toString(16).slice(2)}`,
+        transactionHash: txResult.hash,
+        paidAmount: price
       });
-      return response.json();
+
+      return {
+        ...response.json(),
+        txHash: txResult.hash,
+        paidAmount: price,
+        prompt
+      };
     },
-    onSuccess: (data, promptId) => {
-      const prompt = prompts?.find(p => p.id === promptId);
+    onSuccess: (data) => {
       toast({
-        title: "Purchase Successful",
-        description: `You have successfully purchased "${prompt?.title}" NFT for ${prompt?.price} APT`,
+        title: "NFT Purchase Successful! 🎉",
+        description: `Successfully purchased "${data.prompt.title}" NFT for ${formatAPT(data.paidAmount)} APT. Tx: ${data.txHash.slice(0, 10)}...`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Purchase Failed",
+        title: "NFT Purchase Failed",
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  const handleBuyPrompt = (promptId: number) => {
-    purchaseMutation.mutate(promptId);
+  const handleBuyPrompt = (prompt: Prompt) => {
+    // Check wallet connection first
+    if (!wallet.connected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your Petra wallet to purchase this NFT",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Show confirmation toast with price
+    let price = prompt.price;
+    if (typeof price === 'string') price = parseFloat(price);
+    
+    toast({
+      title: "Processing NFT Purchase...",
+      description: `This will cost ${formatAPT(price)} APT from your wallet`,
+    });
+
+    purchaseMutation.mutate(prompt);
   };
 
   const getCategoryColor = (category: string) => {
@@ -51,11 +122,11 @@ export default function PromptMarketplace() {
   };
 
   return (
-    <section id="prompts" className="py-20 bg-background">
+    <section id="prompts" className="compact-section bg-background constellation-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-foreground mb-4">AI Prompt Marketplace</h2>
-          <p className="text-muted-foreground text-lg">Discover, buy, and sell premium AI prompts as NFTs with full licensing</p>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold holographic mb-2">🎨 AI Prompt Marketplace</h2>
+          <p className="text-muted-foreground">Discover, buy, and sell premium AI prompts as NFTs across the cosmos</p>
         </div>
 
         {isLoading ? (
@@ -107,7 +178,7 @@ export default function PromptMarketplace() {
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-secondary">{prompt.price} APT</span>
                     <Button 
-                      onClick={() => handleBuyPrompt(prompt.id)}
+                      onClick={() => handleBuyPrompt(prompt)}
                       disabled={purchaseMutation.isPending}
                       className="gradient-secondary text-white hover:opacity-90"
                     >
@@ -139,3 +210,4 @@ export default function PromptMarketplace() {
     </section>
   );
 }
+

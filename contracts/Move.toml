@@ -1,0 +1,9 @@
+[package]
+name = "AptosAIGrid"
+version = "0.0.1"
+
+[addresses]
+aptosai_grid = "0x8fd669458715f59eee97ff0baa117b648c8649f9d43f423578261dd26e663a3a"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "mainnet" }

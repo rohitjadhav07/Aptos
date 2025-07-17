@@ -3,54 +3,58 @@
 @tailwind utilities;
 
 :root {
-  /* Dark theme by default for better AI/blockchain aesthetic */
-  --background: hsl(222, 84%, 4.9%);
-  --foreground: hsl(210, 40%, 98%);
-  --muted: hsl(217, 33%, 17%);
-  --muted-foreground: hsl(215, 20%, 65%);
-  --popover: hsl(217, 33%, 17%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --card: hsl(217, 33%, 12%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --border: hsl(217, 33%, 20%);
-  --input: hsl(217, 33%, 17%);
-  --primary: hsl(142, 76%, 36%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(47, 96%, 53%);
-  --secondary-foreground: hsl(222, 84%, 4.9%);
-  --accent: hsl(47, 96%, 53%);
-  --accent-foreground: hsl(222, 84%, 4.9%);
+  /* Space Theme Colors */
+  --background: hsl(240, 100%, 2%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 50%, 8%);
+  --muted-foreground: hsl(240, 20%, 65%);
+  --popover: hsl(240, 50%, 8%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 80%, 4%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 50%, 15%);
+  --input: hsl(240, 50%, 8%);
+  --primary: hsl(280, 100%, 70%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(200, 100%, 60%);
+  --secondary-foreground: hsl(240, 100%, 2%);
+  --accent: hsl(320, 100%, 65%);
+  --accent-foreground: hsl(240, 100%, 2%);
   --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(142, 76%, 36%);
-  --radius: 0.75rem;
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(280, 100%, 70%);
+  --radius: 1rem;
   
-  /* Aptos brand colors */
-  --aptos-green: hsl(142, 76%, 36%);
-  --aptos-yellow: hsl(47, 96%, 53%);
-  --aptos-blue: hsl(207, 90%, 54%);
+  /* Space Theme Specific Colors */
+  --nebula-purple: hsl(280, 100%, 70%);
+  --cosmic-blue: hsl(200, 100%, 60%);
+  --stellar-pink: hsl(320, 100%, 65%);
+  --galaxy-green: hsl(140, 100%, 50%);
+  --solar-orange: hsl(30, 100%, 60%);
+  --void-black: hsl(240, 100%, 2%);
 }
 
 .dark {
-  --background: hsl(222, 84%, 4.9%);
-  --foreground: hsl(210, 40%, 98%);
-  --muted: hsl(217, 33%, 17%);
-  --muted-foreground: hsl(215, 20%, 65%);
-  --popover: hsl(217, 33%, 17%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --card: hsl(217, 33%, 12%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --border: hsl(217, 33%, 20%);
-  --input: hsl(217, 33%, 17%);
-  --primary: hsl(142, 76%, 36%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(47, 96%, 53%);
-  --secondary-foreground: hsl(222, 84%, 4.9%);
-  --accent: hsl(47, 96%, 53%);
-  --accent-foreground: hsl(222, 84%, 4.9%);
-  --destructive: hsl(0, 62%, 30%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(142, 76%, 36%);
+  /* Keep same space theme for dark mode */
+  --background: hsl(240, 100%, 2%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 50%, 8%);
+  --muted-foreground: hsl(240, 20%, 65%);
+  --popover: hsl(240, 50%, 8%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 80%, 4%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 50%, 15%);
+  --input: hsl(240, 50%, 8%);
+  --primary: hsl(280, 100%, 70%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(200, 100%, 60%);
+  --secondary-foreground: hsl(240, 100%, 2%);
+  --accent: hsl(320, 100%, 65%);
+  --accent-foreground: hsl(240, 100%, 2%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(280, 100%, 70%);
 }
 
 @layer base {
@@ -64,44 +68,470 @@
   }
 }
 
-/* Custom gradient utilities */
+/* Space-themed animated background */
+body {
+  background: 
+    radial-gradient(ellipse at top, hsl(280, 100%, 10%) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, hsl(200, 100%, 8%) 0%, transparent 50%),
+    radial-gradient(ellipse at left, hsl(320, 100%, 6%) 0%, transparent 50%),
+    radial-gradient(ellipse at right, hsl(140, 100%, 4%) 0%, transparent 50%),
+    hsl(240, 100%, 2%);
+  background-attachment: fixed;
+  animation: cosmic-drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes cosmic-drift {
+  0% { background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%; }
+  100% { background-position: 100% 0%, 0% 100%, 100% 100%, 0% 0%; }
+}
+
+/* Floating particles animation */
+.space-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.space-particles::before,
+.space-particles::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+  box-shadow: 
+    10px 10px 0 hsl(280, 100%, 70%),
+    20px 20px 0 hsl(200, 100%, 60%),
+    30px 30px 0 hsl(320, 100%, 65%),
+    40px 40px 0 hsl(140, 100%, 50%),
+    50px 50px 0 white,
+    60px 60px 0 hsl(280, 100%, 70%),
+    70px 70px 0 hsl(200, 100%, 60%),
+    80px 80px 0 hsl(320, 100%, 65%);
+}
+
+.space-particles::after {
+  animation-delay: -3s;
+  transform: translateX(100px);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+/* Nebula gradient utilities */
 .gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  background: linear-gradient(135deg, 
+    hsl(var(--nebula-purple)) 0%, 
+    hsl(var(--stellar-pink)) 50%, 
+    hsl(var(--cosmic-blue)) 100%);
+  animation: nebula-shift 8s ease-in-out infinite;
 }
 
 .gradient-secondary {
-  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%);
+  background: linear-gradient(135deg, 
+    hsl(var(--cosmic-blue)) 0%, 
+    hsl(var(--galaxy-green)) 50%, 
+    hsl(var(--solar-orange)) 100%);
+  animation: aurora-dance 6s ease-in-out infinite;
 }
 
 .gradient-card {
-  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(217, 33%, 15%) 100%);
+  background: linear-gradient(135deg, 
+    hsla(240, 80%, 4%, 0.8) 0%, 
+    hsla(280, 50%, 8%, 0.6) 50%,
+    hsla(200, 30%, 6%, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsla(280, 100%, 70%, 0.2);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  background: linear-gradient(135deg, 
+    hsl(var(--nebula-purple)) 0%, 
+    hsl(var(--stellar-pink)) 50%,
+    hsl(var(--cosmic-blue)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: text-glow 4s ease-in-out infinite alternate;
 }
 
-/* Glassmorphism effect */
+@keyframes nebula-shift {
+  0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+  50% { filter: hue-rotate(30deg) brightness(1.2); }
+}
+
+@keyframes aurora-dance {
+  0%, 100% { filter: hue-rotate(0deg) saturate(1); }
+  33% { filter: hue-rotate(120deg) saturate(1.3); }
+  66% { filter: hue-rotate(240deg) saturate(1.1); }
+}
+
+@keyframes text-glow {
+  0% { filter: brightness(1) drop-shadow(0 0 5px hsl(280, 100%, 70%)); }
+  100% { filter: brightness(1.3) drop-shadow(0 0 15px hsl(320, 100%, 65%)); }
+}
+
+/* Enhanced glassmorphism with space theme */
 .glass {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Hover animations */
+/* Cosmic hover animations */
 .hover-lift {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-lift::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    transparent);
+  transition: left 0.5s;
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px hsl(280, 100%, 70%, 0.3),
+    0 0 60px hsl(320, 100%, 65%, 0.2);
 }
 
-/* Aptos specific styling */
-.aptos-glow {
-  box-shadow: 0 0 20px rgba(142, 76%, 36%, 0.3);
+.hover-lift:hover::before {
+  left: 100%;
+}
+
+/* Pulsing glow effects */
+.cosmic-glow {
+  animation: cosmic-pulse 3s ease-in-out infinite;
+  box-shadow: 
+    0 0 20px hsl(280, 100%, 70%, 0.5),
+    0 0 40px hsl(320, 100%, 65%, 0.3),
+    0 0 60px hsl(200, 100%, 60%, 0.2);
+}
+
+@keyframes cosmic-pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px hsl(280, 100%, 70%, 0.5),
+      0 0 40px hsl(320, 100%, 65%, 0.3),
+      0 0 60px hsl(200, 100%, 60%, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px hsl(280, 100%, 70%, 0.8),
+      0 0 60px hsl(320, 100%, 65%, 0.5),
+      0 0 90px hsl(200, 100%, 60%, 0.3);
+  }
+}
+
+/* Stellar button effects */
+.btn-stellar {
+  position: relative;
+  background: linear-gradient(135deg, 
+    hsl(280, 100%, 70%) 0%, 
+    hsl(320, 100%, 65%) 100%);
+  border: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-stellar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent);
+  transition: left 0.6s;
+}
+
+.btn-stellar:hover::before {
+  left: 100%;
+}
+
+.btn-stellar:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 30px hsl(280, 100%, 70%, 0.6);
+}
+
+/* Loading spinner with cosmic theme */
+.cosmic-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid transparent;
+  border-top: 3px solid hsl(280, 100%, 70%);
+  border-right: 3px solid hsl(320, 100%, 65%);
+  border-radius: 50%;
+  animation: cosmic-spin 1s linear infinite;
+}
+
+@keyframes cosmic-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Holographic text effect */
+.holographic {
+  background: linear-gradient(45deg, 
+    hsl(280, 100%, 70%), 
+    hsl(320, 100%, 65%), 
+    hsl(200, 100%, 60%), 
+    hsl(140, 100%, 50%));
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: holographic-shift 3s ease-in-out infinite;
+}
+
+@keyframes holographic-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Constellation pattern overlay */
+.constellation-bg {
+  position: relative;
+}
+
+.constellation-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, white, transparent),
+    radial-gradient(2px 2px at 40px 70px, hsl(280, 100%, 70%), transparent),
+    radial-gradient(1px 1px at 90px 40px, hsl(320, 100%, 65%), transparent),
+    radial-gradient(1px 1px at 130px 80px, hsl(200, 100%, 60%), transparent);
+  background-repeat: repeat;
+  background-size: 150px 100px;
+  opacity: 0.3;
+  pointer-events: none;
+  animation: constellation-twinkle 4s ease-in-out infinite;
+}
+
+@keyframes constellation-twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Floating animation for space elements */
+.animate-float {
+  animation: float-space 6s ease-in-out infinite;
+}
+
+@keyframes float-space {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+    opacity: 0.6;
+  }
+  25% { 
+    transform: translateY(-20px) rotate(90deg); 
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateY(-10px) rotate(180deg); 
+    opacity: 1;
+  }
+  75% { 
+    transform: translateY(-30px) rotate(270deg); 
+    opacity: 0.7;
+  }
+}
+
+/* Enhanced space-themed utilities */
+.nebula-purple {
+  color: hsl(var(--nebula-purple));
+}
+
+.cosmic-blue {
+  color: hsl(var(--cosmic-blue));
+}
+
+.stellar-pink {
+  color: hsl(var(--stellar-pink));
+}
+
+.galaxy-green {
+  color: hsl(var(--galaxy-green));
+}
+
+.solar-orange {
+  color: hsl(var(--solar-orange));
+}
+
+.void-black {
+  color: hsl(var(--void-black));
+}
+
+/* Background utilities for space colors */
+.bg-nebula-purple\/20 {
+  background-color: hsla(280, 100%, 70%, 0.2);
+}
+
+.bg-cosmic-blue\/20 {
+  background-color: hsla(200, 100%, 60%, 0.2);
+}
+
+.bg-stellar-pink\/20 {
+  background-color: hsla(320, 100%, 65%, 0.2);
+}
+
+.bg-galaxy-green\/20 {
+  background-color: hsla(140, 100%, 50%, 0.2);
+}
+
+.bg-solar-orange\/20 {
+  background-color: hsla(30, 100%, 60%, 0.2);
+}
+
+.bg-cosmic-blue\/15 {
+  background-color: hsla(200, 100%, 60%, 0.15);
+}
+
+/* Text color utilities for space theme */
+.text-cosmic-blue\/40 {
+  color: hsla(200, 100%, 60%, 0.4);
+}
+
+.text-stellar-pink\/40 {
+  color: hsla(320, 100%, 65%, 0.4);
+}
+
+.text-galaxy-green\/40 {
+  color: hsla(140, 100%, 50%, 0.4);
+}
+
+.text-solar-orange\/40 {
+  color: hsla(30, 100%, 60%, 0.4);
+}
+
+.text-stellar-pink\/70 {
+  color: hsla(320, 100%, 65%, 0.7);
+}
+
+.text-cosmic-blue\/70 {
+  color: hsla(200, 100%, 60%, 0.7);
+}
+
+.text-galaxy-green\/70 {
+  color: hsla(140, 100%, 50%, 0.7);
+}
+
+/* Big Bang Animation Effects */
+.animate-fade-in {
+  animation: fade-in 2s ease-in-out;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Shooting stars animation */
+.shooting-star {
+  animation: shooting-star-animation linear infinite;
+}
+
+@keyframes shooting-star-animation {
+  0% {
+    transform: translateX(-100px) translateY(-100px) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50px) translateY(-50px) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(300px) translateY(300px) scale(1);
+  }
+  100% {
+    transform: translateX(400px) translateY(400px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Enhanced cosmic effects */
+.cosmic-border {
+  border: 2px solid transparent;
+  background: linear-gradient(45deg, 
+    hsl(280, 100%, 70%), 
+    hsl(200, 100%, 60%), 
+    hsl(320, 100%, 65%), 
+    hsl(140, 100%, 50%)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: exclude;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+/* Compact layout utilities */
+.compact-section {
+  padding: 3rem 0;
+}
+
+.compact-card {
+  padding: 1.5rem;
+}
+
+.compact-grid {
+  gap: 1rem;
+}
+
+/* Balance display fix */
+.balance-display {
+  background: linear-gradient(135deg, 
+    hsla(280, 100%, 70%, 0.2) 0%, 
+    hsla(200, 100%, 60%, 0.2) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsla(280, 100%, 70%, 0.3);
+  color: white !important;
+  font-weight: bold;
+}
+
+.balance-display .text-gradient {
+  background: linear-gradient(135deg, 
+    hsl(280, 100%, 70%) 0%, 
+    hsl(200, 100%, 60%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
